@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV File Upload</title>
+</head>
+<body>
+    <h1>CSV File Upload</h1>
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="csv_file" accept=".csv" required>
+        <br><br>
+        <input type="submit" value="Upload">
+    </form>
+
+    {% if data %}
+    <h2>CSV Data:</h2>
+    <table>
+        <thead>
+            <tr>
+                {% for key in data[0] %}
+                <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                {% for value in row.values() %}
+                <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</body>
+</html>
