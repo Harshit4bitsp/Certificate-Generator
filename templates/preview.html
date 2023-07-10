@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preview</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .preview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .preview-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview">
+        <div class="preview-content">
+            {{ combined_html | safe }}
+        </div>
+    </div>
+</body>
+</html>

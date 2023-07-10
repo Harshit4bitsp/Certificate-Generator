@@ -1,53 +1,50 @@
-from flask import Flask, render_template, request
-import csv
-from reportlab.pdfgen import canvas
+from flask import Flask, render_template, request, redirect, url_for
+import os
+import uuid
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# List to store file paths
+uploaded_files = []
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    file = request.files['csv_file']
-    file_path = f"uploads/{file.filename}"
-    file.save(file_path)
+@app.route('/files')
+def files():
+    return render_template('files.html', uploaded_files=uploaded_files)
 
-    create_certificates(file_path)
 
-    return "Certificates generated successfully!"
+@app.route('/', methods=['GET', 'POST'])
+def preview():
+    if request.method == 'POST':
+        # Save uploaded files with specific names
+        html_file = request.files['html']
+        css_file = request.files['css']
+        html_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'index.html')
+        css_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'style.css')
+        html_file.save(html_filepath)
+        css_file.save(css_filepath)
 
-def create_certificates(file_path):
-    with open(file_path, 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            name = row['Name']
-            grade = row['Grade']
-            school = row['School']
-            day = row['Day']
-            month = row['Month']
-            year = row['Year']
-            rank = row['Rank']
+        # Track file paths
+        uploaded_files.append((html_filepath, css_filepath))
 
-            certificate_filename = f"certificates/{name}.pdf"
+        # Read uploaded files
+        with open(html_filepath, 'r') as html_file, \
+                open(css_filepath, 'r') as css_file:
+            html = html_file.read()
+            css = css_file.read()
+            combined_html = f'<style>{css}</style>{html}'
 
-            # Create a new PDF canvas
-            c = canvas.Canvas(certificate_filename)
+        return render_template('preview.html', combined_html=combined_html)
 
-            # Customize the certificate layout
-            c.setFont("Helvetica", 24)
-            c.drawString(100, 700, f"Certificate of Achievement")
-            c.setFont("Helvetica", 18)
-            c.drawString(100, 600, f"Name: {name}")
-            c.drawString(100, 550, f"Grade: {grade}")
-            c.drawString(100, 500, f"School: {school}")
-            c.drawString(100, 450, f"Date: {day} {month} {year}")
-            c.drawString(100, 400, f"Rank: {rank}")
-            # Customize further as needed
+    return '''
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="html" accept=".html">
+            <input type="file" name="css" accept=".css">
+            <input type="submit" value="Preview">
+        </form>
+    '''
 
-            # Save and close the PDF canvas
-            c.save()
 
 if __name__ == '__main__':
     app.run(debug=True)

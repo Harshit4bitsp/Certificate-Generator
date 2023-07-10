@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Uploaded Files</title>
+</head>
+<body>
+    <h1>Uploaded Files</h1>
+    <ul>
+        {% for html_filepath, css_filepath in uploaded_files %}
+        <li>
+            <a href="{{ html_filepath }}" target="_blank">HTML</a>,
+            <a href="{{ css_filepath }}" target="_blank">CSS</a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
